@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:keep_notes/colors.dart';
@@ -6,16 +7,22 @@ import 'package:keep_notes/model/my_Note_Model.dart'; // Import the Note class f
 import 'package:keep_notes/note_View.dart';
 import 'package:keep_notes/searched_Notes.dart';
 import 'package:keep_notes/services/db.dart';
+import 'package:keep_notes/services/sharedPrefrences.dart';
 import 'package:keep_notes/side_menu_bar.dart';
 
-String Heading = "Heading";
-String text1 =
-    "Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note ";
-String text2 =
-    "Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note NoteNote Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note";
+// String Heading = "Heading";
+// String text1 =
+//     "Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note ";
+// String text2 =
+//     "Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note NoteNote Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note";
 
 bool isLoading = true;
 late List<Note> noteList = [];
+
+//Sharedprefrences data
+late String? name;
+late String? email;
+late String? image;
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -25,6 +32,23 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  bool? isLogin;
+  @override
+  void initState() {
+    super.initState();
+    getAllEntry();
+  }
+
+  Future<bool?> getData() async {
+    name = await LocalDataSaver.getName();
+    email = await LocalDataSaver.getEmail();
+    image = await LocalDataSaver.getImage();
+    print('Name: $name');
+    print('Email: $email');
+    print('Image: $image');
+    return true; // Return true if data retrieval was successful
+  }
+
   final searchController = TextEditingController();
 
   //Defining Global Key to open the Drawer:
@@ -41,15 +65,6 @@ class _HomeState extends State<Home> {
   }
 
   @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    getAllEntry();
-    // searchResults("Abhay");
-    // getOneNote(3);
-  }
-
-  @override
   void didChangeDependencies() {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
@@ -63,20 +78,41 @@ class _HomeState extends State<Home> {
       content: "This is first Note created Using the model class",
       createdTime: DateTime.now());
 
+  Future getAllEntry() async {
+    LocalDataSaver.getImage().then((value) {
+      if (this.mounted) {
+        setState(() {
+          print("Inside the getAllEntry Getting the image: ${value}");
+          image = value;
+        });
+      }
+    });
+    LocalDataSaver.getName().then((value) {
+      if (this.mounted) {
+        setState(() {
+          print("Inside the getAllEntry Getting the image: ${value}");
+        });
+      }
+    });
+    noteList = await NotesDataBase.instance.readAllNotes();
+
+    if (this.mounted) {
+      setState(() {
+        print("Changing the state using isLoading.....");
+        print(isLoading);
+        isLoading = false;
+        print(isLoading);
+      });
+    }
+  }
+
   Future createEntry({Note? note}) async {
     await NotesDataBase.instance.insertEntry(note!);
   }
 
-  Future getAllEntry() async {
-    noteList = await NotesDataBase.instance.readAllNotes();
-    setState(() {
-      isLoading = false;
-    });
-  }
-
   Future getOneNote(int id) async {
-   Note? newnote = await NotesDataBase.instance.readOneNote(id);
-   print(newnote);
+    Note? newnote = await NotesDataBase.instance.readOneNote(id);
+    print(newnote);
   }
 
   Future getDeleteNote(Note note) async {
@@ -85,13 +121,13 @@ class _HomeState extends State<Home> {
 
   //Search Functionality code:
 
- late List<int> searchResultId = [];
- late List<Note?> searchResultsNotes = [];
+  late List<int> searchResultId = [];
+  late List<Note?> searchResultsNotes = [];
 
   void searchResults(String query) async {
     searchResultsNotes.clear();
     final List<int>? resultIds =
-    await NotesDataBase.instance.getNoteString(query); //[1,2,3,4,5]
+        await NotesDataBase.instance.getNoteString(query); //[1,2,3,4,5]
     print("This result id received in home Activity $resultIds");
 
     if (resultIds != null && resultIds.isNotEmpty) {
@@ -105,11 +141,14 @@ class _HomeState extends State<Home> {
 
         // Once all notes are added to searchResultsNotes, navigate
         print("Enabeling Navigator.push");
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SearchedNotes(listOfNotes: searchResultsNotes)));
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    SearchedNotes(listOfNotes: searchResultsNotes)));
       });
     }
   }
-
 
   // void searchResults(String query) async {
   //   searchResultsNotes.clear();
@@ -127,8 +166,6 @@ class _HomeState extends State<Home> {
   //   Navigator.push(context, MaterialPageRoute(builder: (context)=>SearchedNotes(listOfNotes: searchResultsNotes)));
   // }
 
-
-
   //
   //   // // print("this is result ids $resultIds");
   //   // List<Note?> SearchResultNotesLocal = [];
@@ -140,21 +177,35 @@ class _HomeState extends State<Home> {
   //   //   // print("$searchResultsNotes + This is the list of the serachResult");
   //   // });
 
-
   @override
   Widget build(BuildContext context) {
     // print(searchResultsNotes);
 
     //Accessed size of the screen
     var mq = MediaQuery.of(context).size;
+
+    // Check if image is null
+    if (isLoading) {
+      // Show a placeholder or loading indicator
+      return  Scaffold(
+        backgroundColor: bgColor,
+        body: const Center(
+          child:
+              CircularProgressIndicator(), // Placeholder or loading indicator
+        ),
+      );
+    }
+
     return Scaffold(
         backgroundColor: bgColor,
         key: _drawerKey,
         drawer: const SideBar(),
         floatingActionButton: FloatingActionButton(
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const CreateNoteView()));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const CreateNoteView()));
             },
             child: const Icon(Icons.add)),
         body: SafeArea(
@@ -182,7 +233,8 @@ class _HomeState extends State<Home> {
                       // border: Border.all(color: Colors.white)
                     ),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: mq.width*0.01),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: mq.width * 0.01),
                       child: Row(
                         children: [
                           Container(
@@ -208,14 +260,13 @@ class _HomeState extends State<Home> {
                                     searchResults(value.toLowerCase());
                                   });
 
-
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) => const SearchedNotes(
+                                          builder: (context) =>
+                                              const SearchedNotes(
                                                 listOfNotes: [],
                                               )));
-
                                 },
                                 cursorColor: Colors.white.withOpacity(0.5),
                                 textAlign: TextAlign.start,
@@ -230,7 +281,6 @@ class _HomeState extends State<Home> {
                                     hintStyle: TextStyle(
                                         color: Colors.white.withOpacity(0.50),
                                         fontSize: 13)),
-
                               ),
                             ),
                           ),
@@ -238,7 +288,8 @@ class _HomeState extends State<Home> {
                               onPressed: () {},
                               style: ButtonStyle(
                                   overlayColor: MaterialStateColor.resolveWith(
-                                      (states) => Colors.white.withOpacity(0.1)),
+                                      (states) =>
+                                          Colors.white.withOpacity(0.1)),
                                   shape: MaterialStateProperty.all<
                                           RoundedRectangleBorder>(
                                       RoundedRectangleBorder(
@@ -256,7 +307,14 @@ class _HomeState extends State<Home> {
                           //       color: Colors.white.withOpacity(0.5),
                           //       size: 20,
                           //     ))
-                          CircleAvatar(backgroundImage: NetworkImage(""),)
+                          // CircleAvatar(backgroundImage: NetworkImage(image!),)
+                          CircleAvatar(
+                            backgroundImage:  image != null ? NetworkImage(image!) : AssetImage("images/default.jpg") as ImageProvider,
+                            // backgroundImage: NetworkImage(image.toString()),
+                            onBackgroundImageError: (Object, StackTrace) {
+                              print("ok, image Error");
+                            },
+                          )
                         ],
                       ),
                     ),
@@ -264,16 +322,16 @@ class _HomeState extends State<Home> {
                   SizedBox(height: mq.height * 0.01),
                   //Without Color Notes:
                   staggeredView1(context, mq),
-                  SizedBox(
-                    height: mq.height * 0.05,
-                  ),
-                  //coloured Notes:
-                  staggeredView2(context, mq),
-                  SizedBox(
-                    height: mq.height * 0.05,
-                  ),
-                  //ListView of Notes:
-                  listViewNotes(context, mq)
+                  // SizedBox(
+                  //   height: mq.height * 0.05,
+                  // ),
+                  // //coloured Notes:
+                  // staggeredView2(context, mq),
+                  // SizedBox(
+                  //   height: mq.height * 0.05,
+                  // ),
+                  // //ListView of Notes:
+                  // listViewNotes(context, mq)
                 ],
               ),
             ),
@@ -347,102 +405,102 @@ Widget staggeredView1(BuildContext context, Size mq) {
   );
 }
 
-Widget staggeredView2(BuildContext context, Size mq) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Container(
-          margin: EdgeInsets.symmetric(horizontal: mq.width * 0.015),
-          child: Text(
-            "Coloured Notes:-",
-            style: TextStyle(color: Colors.white.withOpacity(0.7)),
-          )),
-      SizedBox(
-        height: mq.height * 0.01,
-      ),
-      MasonryGridView.builder(
-          mainAxisSpacing: 3,
-          crossAxisSpacing: 2,
-          gridDelegate: const SliverSimpleGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2),
-          itemCount: 50,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemBuilder: (context, index) {
-            return ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                color: index.isEven ? Colors.green : Colors.orangeAccent,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      Heading,
-                      style: const TextStyle(
-                          fontSize: 17, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      index.isEven ? text1 : text2,
-                      style: const TextStyle(
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          })
-    ],
-  );
-}
-
-Widget listViewNotes(BuildContext context, Size mq) {
-  return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-    Container(
-      margin: EdgeInsets.symmetric(horizontal: mq.width * 0.015),
-      child: Text(
-        "Notes List:-",
-        style: TextStyle(
-            fontWeight: FontWeight.bold, color: Colors.white.withOpacity(0.5)),
-      ),
-    ),
-    SizedBox(
-      height: mq.height * 0.01,
-    ),
-    Column(
-      children: [
-        ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: 10,
-            itemBuilder: (BuildContext context, int index) {
-              return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                // color: Colors.grey.withOpacity(0.1),
-                decoration: BoxDecoration(
-                    border: Border.all(color: Colors.white.withOpacity(0.20)),
-                    borderRadius: BorderRadius.circular(10)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      Heading,
-                      style: TextStyle(
-                          color: Colors.white.withOpacity(0.85),
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      index.isEven ? text1 : text2,
-                      style: TextStyle(
-                          color: Colors.white.withOpacity(0.7), fontSize: 13),
-                    ),
-                  ],
-                ),
-              );
-            })
-      ],
-    ),
-  ]);
-}
+// Widget staggeredView2(BuildContext context, Size mq) {
+//   return Column(
+//     crossAxisAlignment: CrossAxisAlignment.start,
+//     children: [
+//       Container(
+//           margin: EdgeInsets.symmetric(horizontal: mq.width * 0.015),
+//           child: Text(
+//             "Coloured Notes:-",
+//             style: TextStyle(color: Colors.white.withOpacity(0.7)),
+//           )),
+//       SizedBox(
+//         height: mq.height * 0.01,
+//       ),
+//       MasonryGridView.builder(
+//           mainAxisSpacing: 3,
+//           crossAxisSpacing: 2,
+//           gridDelegate: const SliverSimpleGridDelegateWithFixedCrossAxisCount(
+//               crossAxisCount: 2),
+//           itemCount: 50,
+//           shrinkWrap: true,
+//           physics: const NeverScrollableScrollPhysics(),
+//           itemBuilder: (context, index) {
+//             return ClipRRect(
+//               borderRadius: BorderRadius.circular(10),
+//               child: Container(
+//                 padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+//                 color: index.isEven ? Colors.green : Colors.orangeAccent,
+//                 child: Column(
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   children: [
+//                     Text(
+//                       Heading,
+//                       style: const TextStyle(
+//                           fontSize: 17, fontWeight: FontWeight.bold),
+//                     ),
+//                     Text(
+//                       index.isEven ? text1 : text2,
+//                       style: const TextStyle(
+//                         fontSize: 13,
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//             );
+//           })
+//     ],
+//   );
+// }
+//
+// Widget listViewNotes(BuildContext context, Size mq) {
+//   return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+//     Container(
+//       margin: EdgeInsets.symmetric(horizontal: mq.width * 0.015),
+//       child: Text(
+//         "Notes List:-",
+//         style: TextStyle(
+//             fontWeight: FontWeight.bold, color: Colors.white.withOpacity(0.5)),
+//       ),
+//     ),
+//     SizedBox(
+//       height: mq.height * 0.01,
+//     ),
+//     Column(
+//       children: [
+//         ListView.builder(
+//             shrinkWrap: true,
+//             physics: const NeverScrollableScrollPhysics(),
+//             itemCount: 10,
+//             itemBuilder: (BuildContext context, int index) {
+//               return Container(
+//                 padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+//                 // color: Colors.grey.withOpacity(0.1),
+//                 decoration: BoxDecoration(
+//                     border: Border.all(color: Colors.white.withOpacity(0.20)),
+//                     borderRadius: BorderRadius.circular(10)),
+//                 child: Column(
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   children: [
+//                     Text(
+//                       Heading,
+//                       style: TextStyle(
+//                           color: Colors.white.withOpacity(0.85),
+//                           fontSize: 17,
+//                           fontWeight: FontWeight.bold),
+//                     ),
+//                     Text(
+//                       index.isEven ? text1 : text2,
+//                       style: TextStyle(
+//                           color: Colors.white.withOpacity(0.7), fontSize: 13),
+//                     ),
+//                   ],
+//                 ),
+//               );
+//             })
+//       ],
+//     ),
+//   ]);
+// }

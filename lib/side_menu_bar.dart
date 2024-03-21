@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:keep_notes/Login/login_page.dart';
 import 'package:keep_notes/archived_Notes.dart';
 import 'package:keep_notes/colors.dart';
 import 'package:keep_notes/home.dart';
+import 'package:keep_notes/services/athentication.dart';
 import 'package:keep_notes/settings.dart';
 
 class SideBar extends StatefulWidget {
@@ -20,25 +22,42 @@ class _SideBarState extends State<SideBar> {
       child: SafeArea(
         child: Container(
           // decoration: BoxDecoration(border: Border.all(color: Colors.red)),
-          margin: EdgeInsets.only(top: mq.height*0.02,left: mq.width*0.02,right: mq.width*0.02),
+          margin: EdgeInsets.only(
+              top: mq.height * 0.02,
+              left: mq.width * 0.02,
+              right: mq.width * 0.02),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-         const Text(
-                "Google Notes",
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 25,
-                    color: Colors.white),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Google Notes",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 25,
+                        color: Colors.white),
+                  ),
+                  const Divider(
+                    color: Colors.white,
+                    thickness: 1,
+                  ),
+                  SectionOne(context),
+                  SectionTwo(context),
+                  SectionThree(context),
+
+                ],
               ),
-              const Divider(
-                color: Colors.white,
-                thickness: 1,
-              ),
-              SectionOne(context),
-              SectionTwo(context),
-              SectionThree(context)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SectionFour(context),
+                ],
+              )
+
             ],
+
           ),
         ),
       ),
@@ -52,7 +71,8 @@ Widget SectionOne(BuildContext context) {
     // decoration: BoxDecoration(border: Border.all(color: Colors.green)),
     child: TextButton(
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>const Home()));
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => const Home()));
         },
         style: ButtonStyle(
             overlayColor: MaterialStateColor.resolveWith(
@@ -60,7 +80,7 @@ Widget SectionOne(BuildContext context) {
             backgroundColor:
                 MaterialStateProperty.all(Colors.orangeAccent.withOpacity(0.5)),
             shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-              const  RoundedRectangleBorder(
+                const RoundedRectangleBorder(
                     borderRadius: BorderRadius.only(
                         topRight: Radius.circular(50),
                         bottomRight: Radius.circular(50))))),
@@ -92,14 +112,15 @@ Widget SectionTwo(BuildContext context) {
     // decoration: BoxDecoration(border: Border.all(color: Colors.green)),
     child: TextButton(
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>ArchivedNotes()));
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => ArchivedNotes()));
         },
         style: ButtonStyle(
             overlayColor: MaterialStateColor.resolveWith(
                 (states) => Colors.yellow.withOpacity(0.3)),
             // backgroundColor: MaterialStateProperty.all(Colors.orangeAccent.withOpacity(0.5)),
             shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-               const RoundedRectangleBorder(
+                const RoundedRectangleBorder(
                     borderRadius: BorderRadius.only(
                         topRight: Radius.circular(50),
                         bottomRight: Radius.circular(50))))),
@@ -131,14 +152,15 @@ Widget SectionThree(BuildContext context) {
     // decoration: BoxDecoration(border: Border.all(color: Colors.green)),
     child: TextButton(
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>Settings()));
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => Settings()));
         },
         style: ButtonStyle(
             overlayColor: MaterialStateColor.resolveWith(
                 (states) => Colors.yellow.withOpacity(0.3)),
             // backgroundColor: MaterialStateProperty.all(Colors.orangeAccent.withOpacity(0.5)),
             shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-              const  RoundedRectangleBorder(
+                const RoundedRectangleBorder(
                     borderRadius: BorderRadius.only(
                         topRight: Radius.circular(50),
                         bottomRight: Radius.circular(50))))),
@@ -160,6 +182,47 @@ Widget SectionThree(BuildContext context) {
                   fontWeight: FontWeight.normal),
             )
           ],
+        )),
+  );
+}
+
+Widget SectionFour(BuildContext context) {
+  return Container(
+    margin: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
+    // decoration: BoxDecoration(border: Border.all(color: Colors.green)),
+    child: TextButton(
+        onPressed: () {
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) =>const LoginPage()));
+        },
+        style: ButtonStyle(
+            overlayColor: MaterialStateColor.resolveWith(
+                (states) => Colors.yellow.withOpacity(0.3)),
+            // backgroundColor: MaterialStateProperty.all(Colors.orangeAccent.withOpacity(0.5)),
+            // shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+            //     const RoundedRectangleBorder(
+            //         borderRadius: BorderRadius.only(
+            //             topRight: Radius.circular(50),
+            //             bottomRight: Radius.circular(50))))
+        ),
+        child: GestureDetector(
+          onTap: () async {
+            await signOut();
+            Navigator.pushReplacement(
+                context, MaterialPageRoute(builder: (context) => LoginPage()));
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "SignOut",
+                style: TextStyle(
+                    color: Colors.white.withOpacity(0.5),
+                    fontSize: 18,
+                    fontWeight: FontWeight.normal),
+              )
+            ],
+          ),
         )),
   );
 }
