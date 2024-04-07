@@ -9,12 +9,14 @@ import 'package:keep_notes/searched_Notes.dart';
 import 'package:keep_notes/services/db.dart';
 import 'package:keep_notes/services/sharedPrefrences.dart';
 import 'package:keep_notes/side_menu_bar.dart';
+import 'package:keep_notes/services/fireStore_DB.dart';
 
-// String Heading = "Heading";
-// String text1 =
-//     "Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note ";
-// String text2 =
-//     "Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note NoteNote Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note";
+
+String Heading = "Heading";
+String text1 =
+    "Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note ";
+String text2 =
+    "Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note NoteNote Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note Note";
 
 bool isLoading = true;
 late List<Note> noteList = [];
@@ -79,6 +81,8 @@ class _HomeState extends State<Home> {
       createdTime: DateTime.now());
 
   Future getAllEntry() async {
+   // await FireStoreDB().createNewNoteFireStore("master.abhay71052@gmail.com", 2);
+
     LocalDataSaver.getImage().then((value) {
       if (this.mounted) {
         setState(() {
@@ -149,34 +153,6 @@ class _HomeState extends State<Home> {
       });
     }
   }
-
-  // void searchResults(String query) async {
-  //   searchResultsNotes.clear();
-  //   final List<int>? resultIds =
-  //       await NotesDataBase.instance.getNoteString(query); //[1,2,3,4,5]
-  //   print("This result id received in home Activity $resultIds");
-  //
-  //   resultIds?.forEach((element)async {
-  //     final Note? newNote = await NotesDataBase.instance.readOneNote(element);
-  //    searchResultsNotes.add(newNote) ;
-  //    print("List of Notes in Home.dart: ${searchResultsNotes}");
-  //   });
-  //   print(searchResultsNotes);
-  //   print("Enabeling Navigator.push");
-  //   Navigator.push(context, MaterialPageRoute(builder: (context)=>SearchedNotes(listOfNotes: searchResultsNotes)));
-  // }
-
-  //
-  //   // // print("this is result ids $resultIds");
-  //   // List<Note?> SearchResultNotesLocal = [];
-  //   // resultIds?.forEach((element) async {
-  //   //   final searchNote = await NotesDataBase.instance.readOneNote(element);
-  //   //   print("This is result of the getStringQuery $searchNote");
-  //   //   // searchResultsNotes.add(searchNote);
-  //   //   // SearchResultNotesLocal.add(searchNote);
-  //   //   // print("$searchResultsNotes + This is the list of the serachResult");
-  //   // });
-
   @override
   Widget build(BuildContext context) {
     // print(searchResultsNotes);
@@ -264,9 +240,7 @@ class _HomeState extends State<Home> {
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) =>
-                                              const SearchedNotes(
-                                                listOfNotes: [],
-                                              )));
+                                               SearchedNotes(listOfNotes: listOfNotes)));
                                 },
                                 cursorColor: Colors.white.withOpacity(0.5),
                                 textAlign: TextAlign.start,
@@ -300,14 +274,6 @@ class _HomeState extends State<Home> {
                                 color: Colors.white.withOpacity(0.5),
                                 size: 20,
                               )),
-                          // IconButton(
-                          //     onPressed: () {},
-                          //     icon: Icon(
-                          //       Icons.settings,
-                          //       color: Colors.white.withOpacity(0.5),
-                          //       size: 20,
-                          //     ))
-                          // CircleAvatar(backgroundImage: NetworkImage(image!),)
                           CircleAvatar(
                             backgroundImage:  image != null ? NetworkImage(image!) : AssetImage("images/default.jpg") as ImageProvider,
                             // backgroundImage: NetworkImage(image.toString()),
@@ -405,102 +371,102 @@ Widget staggeredView1(BuildContext context, Size mq) {
   );
 }
 
-// Widget staggeredView2(BuildContext context, Size mq) {
-//   return Column(
-//     crossAxisAlignment: CrossAxisAlignment.start,
-//     children: [
-//       Container(
-//           margin: EdgeInsets.symmetric(horizontal: mq.width * 0.015),
-//           child: Text(
-//             "Coloured Notes:-",
-//             style: TextStyle(color: Colors.white.withOpacity(0.7)),
-//           )),
-//       SizedBox(
-//         height: mq.height * 0.01,
-//       ),
-//       MasonryGridView.builder(
-//           mainAxisSpacing: 3,
-//           crossAxisSpacing: 2,
-//           gridDelegate: const SliverSimpleGridDelegateWithFixedCrossAxisCount(
-//               crossAxisCount: 2),
-//           itemCount: 50,
-//           shrinkWrap: true,
-//           physics: const NeverScrollableScrollPhysics(),
-//           itemBuilder: (context, index) {
-//             return ClipRRect(
-//               borderRadius: BorderRadius.circular(10),
-//               child: Container(
-//                 padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-//                 color: index.isEven ? Colors.green : Colors.orangeAccent,
-//                 child: Column(
-//                   crossAxisAlignment: CrossAxisAlignment.start,
-//                   children: [
-//                     Text(
-//                       Heading,
-//                       style: const TextStyle(
-//                           fontSize: 17, fontWeight: FontWeight.bold),
-//                     ),
-//                     Text(
-//                       index.isEven ? text1 : text2,
-//                       style: const TextStyle(
-//                         fontSize: 13,
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             );
-//           })
-//     ],
-//   );
-// }
-//
-// Widget listViewNotes(BuildContext context, Size mq) {
-//   return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-//     Container(
-//       margin: EdgeInsets.symmetric(horizontal: mq.width * 0.015),
-//       child: Text(
-//         "Notes List:-",
-//         style: TextStyle(
-//             fontWeight: FontWeight.bold, color: Colors.white.withOpacity(0.5)),
-//       ),
-//     ),
-//     SizedBox(
-//       height: mq.height * 0.01,
-//     ),
-//     Column(
-//       children: [
-//         ListView.builder(
-//             shrinkWrap: true,
-//             physics: const NeverScrollableScrollPhysics(),
-//             itemCount: 10,
-//             itemBuilder: (BuildContext context, int index) {
-//               return Container(
-//                 padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-//                 // color: Colors.grey.withOpacity(0.1),
-//                 decoration: BoxDecoration(
-//                     border: Border.all(color: Colors.white.withOpacity(0.20)),
-//                     borderRadius: BorderRadius.circular(10)),
-//                 child: Column(
-//                   crossAxisAlignment: CrossAxisAlignment.start,
-//                   children: [
-//                     Text(
-//                       Heading,
-//                       style: TextStyle(
-//                           color: Colors.white.withOpacity(0.85),
-//                           fontSize: 17,
-//                           fontWeight: FontWeight.bold),
-//                     ),
-//                     Text(
-//                       index.isEven ? text1 : text2,
-//                       style: TextStyle(
-//                           color: Colors.white.withOpacity(0.7), fontSize: 13),
-//                     ),
-//                   ],
-//                 ),
-//               );
-//             })
-//       ],
-//     ),
-//   ]);
-// }
+Widget staggeredView2(BuildContext context, Size mq) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Container(
+          margin: EdgeInsets.symmetric(horizontal: mq.width * 0.015),
+          child: Text(
+            "Coloured Notes:-",
+            style: TextStyle(color: Colors.white.withOpacity(0.7)),
+          )),
+      SizedBox(
+        height: mq.height * 0.01,
+      ),
+      MasonryGridView.builder(
+          mainAxisSpacing: 3,
+          crossAxisSpacing: 2,
+          gridDelegate: const SliverSimpleGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2),
+          itemCount: 50,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemBuilder: (context, index) {
+            return ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                color: index.isEven ? Colors.green : Colors.orangeAccent,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      Heading,
+                      style: const TextStyle(
+                          fontSize: 17, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      index.isEven ? text1 : text2,
+                      style: const TextStyle(
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          })
+    ],
+  );
+}
+
+Widget listViewNotes(BuildContext context, Size mq) {
+  return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    Container(
+      margin: EdgeInsets.symmetric(horizontal: mq.width * 0.015),
+      child: Text(
+        "Notes List:-",
+        style: TextStyle(
+            fontWeight: FontWeight.bold, color: Colors.white.withOpacity(0.5)),
+      ),
+    ),
+    SizedBox(
+      height: mq.height * 0.01,
+    ),
+    Column(
+      children: [
+        ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: 10,
+            itemBuilder: (BuildContext context, int index) {
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                // color: Colors.grey.withOpacity(0.1),
+                decoration: BoxDecoration(
+                    border: Border.all(color: Colors.white.withOpacity(0.20)),
+                    borderRadius: BorderRadius.circular(10)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      Heading,
+                      style: TextStyle(
+                          color: Colors.white.withOpacity(0.85),
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      index.isEven ? text1 : text2,
+                      style: TextStyle(
+                          color: Colors.white.withOpacity(0.7), fontSize: 13),
+                    ),
+                  ],
+                ),
+              );
+            })
+      ],
+    ),
+  ]);
+}

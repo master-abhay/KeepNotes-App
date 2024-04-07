@@ -131,9 +131,6 @@ class _ArchivedNotesState extends State<ArchivedNotes> {
                       ],
                     ),
                   ),
-                  SizedBox(height: mq.height * 0.01),
-                  //Without Color Notes:
-                  staggeredView1(context, mq),
                   SizedBox(
                     height: mq.height * 0.05,
                   ),
@@ -152,64 +149,7 @@ class _ArchivedNotesState extends State<ArchivedNotes> {
   }
 }
 
-Widget staggeredView1(BuildContext context, Size mq) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Container(
-          margin: EdgeInsets.symmetric(horizontal: mq.width * 0.015),
-          child: Text(
-            "Archived:-",
-            style: TextStyle(color: Colors.white.withOpacity(0.7)),
-          )),
-      SizedBox(
-        height: mq.height * 0.01,
-      ),
-      MasonryGridView.builder(
-          mainAxisSpacing: 3,
-          crossAxisSpacing: 2,
-          gridDelegate: const SliverSimpleGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2),
-          itemCount: 50,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemBuilder: (context, index) {
-            return InkWell(
-              onTap: (){
-                // Navigator.push(context, MaterialPageRoute(builder: (context)=>NoteView()));
-              },
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                  // color: Colors.grey.withOpacity(0.1),
-                  decoration: BoxDecoration(
-                      border: Border.all(color: Colors.white.withOpacity(0.20)),
-                      borderRadius: BorderRadius.circular(10)),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        Heading,
-                        style: TextStyle(
-                            color: Colors.white.withOpacity(0.85),
-                            fontSize: 17,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        index.isEven ? Note : Note1,
-                        style: TextStyle(
-                            color: Colors.white.withOpacity(0.7), fontSize: 13),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          })
-    ],
-  );
-}
+
 
 Widget staggeredView2(BuildContext context, Size mq) {
   return Column(

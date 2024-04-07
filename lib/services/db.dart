@@ -19,7 +19,7 @@ class NotesDataBase {
     final path = join(dbPath, filePath);
 
     return openDatabase(path,
-        version: 2, onCreate: _createDB, onUpgrade: _onUpgradeDB);
+        version: 3, onCreate: _createDB, onUpgrade: _onUpgradeDB);
   }
 
   Future _createDB(Database db, int version) async {
@@ -41,7 +41,7 @@ class NotesDataBase {
     }
   }
   Future _onUpgradeDB(Database db,int oldVersion, int version) async{
-    if (oldVersion < 2) {
+    if (oldVersion < 3) {
       // If upgrading from version 1 to 2, add the isArchive column
       await db.execute('''
         ALTER TABLE ${NotesImportantNames.tableName}

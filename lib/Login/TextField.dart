@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 Widget textField(
     {required BuildContext context,
+     TextInputType? keyboardType,
       TextEditingController? controller,
       required bool obscureText,
       required String hintText,
@@ -33,8 +34,10 @@ Widget textField(
                 width: MediaQuery.of(context).size.width * 0.03,
               ),
               Expanded(
-                child: TextField(
+                child: TextFormField(
+                  keyboardType: keyboardType,
                   controller: controller,
+
                   onChanged: (value){
                     controller!.text = value;
                   },
@@ -48,6 +51,12 @@ Widget textField(
                     enabledBorder: InputBorder.none,
                     hintText: hintText,
                   ),
+                  validator: (value){
+                    if(value!.isEmpty){
+                      return "Enter email";
+                    }
+                    return null;
+                  },
                 ),
               ),
               Icon(trailingIcon)

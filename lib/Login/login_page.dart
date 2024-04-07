@@ -1,10 +1,15 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
+import 'package:keep_notes/Login/signUp_page.dart';
+
+// import 'package:fluttertoast/fluttertoast.dart';
 import 'package:keep_notes/services/athentication.dart';
 
 import '../home.dart';
 import 'Button.dart';
 import 'TextField.dart';
+import 'Toast.dart';
 import 'color.dart';
 
 class LoginPage extends StatefulWidget {
@@ -15,8 +20,40 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  bool isLoading = false;
+
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+
+  login() async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
+      await _firebaseAuth
+          .signInWithEmailAndPassword(
+              email: _emailController.text, password: _passwordController.text)
+          .then((value) => {
+                Utils().showToast(message: value.user!.email.toString()),
+                Navigator.push(
+                    context, MaterialPageRoute(builder: (context) => Home())),
+                setState(() {
+                  isLoading = false;
+                })
+              })
+          .catchError((onError) {
+        Utils().showToast(message: onError.toString());
+      });
+    } catch (error) {
+      print("Error while logging in with email and password");
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -72,31 +109,40 @@ class _LoginPageState extends State<LoginPage> {
               // ),
 
               //TextField email
-              textField(
-                  context: context,
-                  obscureText: false,
-                  hintText: "Email",
-                  icon: Icons.email,
-                  trailingIcon: null,
-                  controller: _emailController),
-              SizedBox(
-                height: mq.height * 0.002,
-              ),
-              //TextField password
-              textField(
-                  context: context,
-                  obscureText: true,
-                  hintText: "Password",
-                  icon: Icons.password,
-                  trailingIcon: null,
-                  controller: _passwordController),
-              SizedBox(
-                height: mq.height * 0.002,
-              ),
+              Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      textField(
+                          context: context,
+                          obscureText: false,
+                          hintText: "Email",
+                          icon: Icons.email,
+                          trailingIcon: null,
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress),
+                      SizedBox(
+                        height: mq.height * 0.002,
+                      ),
+                      //TextField password
+                      textField(
+                          context: context,
+                          obscureText: true,
+                          hintText: "Password",
+                          icon: Icons.password,
+                          trailingIcon: null,
+                          controller: _passwordController,
+                          keyboardType: TextInputType.text),
+                      SizedBox(
+                        height: mq.height * 0.002,
+                      ),
+                    ],
+                  )),
 
               loginButton(
                   buttonText: "Login",
                   context: context,
+                  loading: isLoading,
                   buttonPaddingHorizontal: 0.09,
                   buttonPaddingVertical: 0.006,
                   buttonRadius: 10,
@@ -105,8 +151,10 @@ class _LoginPageState extends State<LoginPage> {
                   gradientBegin: Alignment.topLeft,
                   gradientEnd: Alignment.bottomRight,
                   colorsList: [MyColor.splashGreen, Colors.green],
-                  execute: () {
-                    print(_emailController.text + _passwordController.text);
+                  execute: () async {
+                    if (_formKey.currentState!.validate()) {
+                      await login();
+                    }
                   }),
 
               //Don't have account text
@@ -114,6 +162,8 @@ class _LoginPageState extends State<LoginPage> {
                 onTap: () {
                   print(
                       "Creating Account in Login Page..........................");
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => SignUpPage()));
                 },
                 child: const Text(
                   "Don't have Account! create one.",
@@ -142,10 +192,11 @@ class _LoginPageState extends State<LoginPage> {
 
               SignInButton(
                 Buttons.Google,
-                onPressed: () async{
+                onPressed: () async {
                   await signInWithGoogle();
 
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder:(context)=>Home()));
+                  Navigator.pushReplacement(
+                      context, MaterialPageRoute(builder: (context) => Home()));
                 },
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5)),

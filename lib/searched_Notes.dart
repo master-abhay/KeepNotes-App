@@ -30,8 +30,8 @@ class _SearchedNotesState extends State<SearchedNotes> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    print("In SearchedNotes: ${widget.listOfNotes}");
     listOfNotes = widget.listOfNotes;
+    print("printing the searched results in the searched result page:..................${listOfNotes}");
     setState(() {
       isLoading = !isLoading;
     });

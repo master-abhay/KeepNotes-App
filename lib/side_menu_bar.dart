@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:keep_notes/Login/login_page.dart';
 import 'package:keep_notes/archived_Notes.dart';
@@ -14,6 +15,10 @@ class SideBar extends StatefulWidget {
 }
 
 class _SideBarState extends State<SideBar> {
+
+  final auth = FirebaseAuth.instance;
+
+
   @override
   Widget build(BuildContext context) {
     var mq = MediaQuery.of(context).size;
@@ -52,7 +57,7 @@ class _SideBarState extends State<SideBar> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  SectionFour(context),
+                  SectionFour(context,auth),
                 ],
               )
 
@@ -186,7 +191,7 @@ Widget SectionThree(BuildContext context) {
   );
 }
 
-Widget SectionFour(BuildContext context) {
+Widget SectionFour(BuildContext context,  FirebaseAuth auth) {
   return Container(
     margin: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
     // decoration: BoxDecoration(border: Border.all(color: Colors.green)),
@@ -208,6 +213,7 @@ Widget SectionFour(BuildContext context) {
         child: GestureDetector(
           onTap: () async {
             await signOut();
+            // await auth.signOut();
             Navigator.pushReplacement(
                 context, MaterialPageRoute(builder: (context) => LoginPage()));
           },

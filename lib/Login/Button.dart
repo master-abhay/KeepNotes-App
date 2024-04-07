@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 Widget loginButton(
     {required BuildContext context,
+     required bool loading,
       required double buttonRadius,
       required double buttonPaddingHorizontal,
       required double buttonPaddingVertical,
@@ -17,6 +18,8 @@ Widget loginButton(
         execute();
       },
       child: Container(
+        height: MediaQuery.of(context).size.height * 0.05,
+        width: MediaQuery.of(context).size.width * 0.7,
         padding: EdgeInsets.symmetric(
             vertical:
             MediaQuery.of(context).size.height * buttonPaddingVertical,
@@ -26,9 +29,16 @@ Widget loginButton(
             borderRadius: BorderRadius.circular(buttonRadius),
             gradient: LinearGradient(
                 begin: gradientBegin, end: gradientEnd, colors: colorsList)),
-        child: Text(
-          buttonText,
-          style: TextStyle(fontSize: textSize, color: textColor),
+        child: loading ? const  Center(
+          child:  CircularProgressIndicator(
+            strokeWidth: 2.0,
+            color: Colors.white,
+          ),
+        ):Center(
+          child: Text(
+            buttonText,
+            style: TextStyle(fontSize: textSize, color: textColor),
+          ),
         ),
       ));
 }
