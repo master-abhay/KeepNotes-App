@@ -9,7 +9,7 @@ import 'package:keep_notes/searched_Notes.dart';
 import 'package:keep_notes/services/db.dart';
 import 'package:keep_notes/services/sharedPrefrences.dart';
 import 'package:keep_notes/side_menu_bar.dart';
-import 'package:keep_notes/services/fireStore_DB.dart';
+import 'package:keep_notes/services/firestore_services.dart';
 
 
 String Heading = "Heading";
